@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,9 +20,20 @@ namespace WpfApp
     /// </summary>
     public partial class AssignmentWindow : Window
     {
-        public AssignmentWindow()
+
+        private Course course;
+        public AssignmentWindow(Course course)
         {
             InitializeComponent();
+            this.course = course;
+            PutTasksOnView();
+        }
+
+        private void PutTasksOnView() {
+            foreach(Assignment task in course.Tasks)
+            {
+                AssignmentListBox.Items.Add(task);
+            }
         }
     }
 }

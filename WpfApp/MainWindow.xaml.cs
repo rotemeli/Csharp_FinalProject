@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml.Schema;
 
 namespace WpfApp
 {
@@ -36,7 +37,7 @@ namespace WpfApp
                 return null;
             }
             Course course = new Course(courseName);
-
+            bool flag = true;
             foreach (var dict in deserialized) 
             {
                 int i = 0;
@@ -63,10 +64,14 @@ namespace WpfApp
                             double percent = double.Parse(props[1].Replace("%", ""));
                             Grade g = new Grade(props[0], percent, pair.Value);
                             student.AddGrade(g);
+                            if (flag) {
+                                course.AddAssignment(new Assignment(task));
+                            }
                             break;
                     }
                     ++i;
                 }
+                flag = false;
                 course.AddStudent(student);
             }
             return course;
@@ -157,6 +162,11 @@ namespace WpfApp
             {
                 StudentsInCourse.Items.Add(student);
             }
+            if(FactorBtn != null)
+            {
+                FactorBtn.Visibility = Visibility.Visible;
+            }
+            CourseName.Content = course.CourseName;
         }
 
         private void FileDialogBtn_Click(object sender, RoutedEventArgs e)
@@ -295,6 +305,12 @@ namespace WpfApp
 
                 FinalGrade.Content = "Final Grade:";
             }
+            if(FactorBtn != null)
+            {
+                FactorBtn.Visibility = Visibility.Hidden;
+            }
+            
+            CourseName.Content = "Course Name";
 
         }
 
@@ -314,12 +330,14 @@ namespace WpfApp
 
         private void FactorBtn_Click(object sender, RoutedEventArgs e)
         {
+            Object item = CoursesBox.SelectedItem;
             if (CoursesBox.SelectedIndex != 0)
             {
-                AssignmentWindow AssignmentWindow = new AssignmentWindow();
+                Course course = (Course)item;
+                AssignmentWindow AssignmentWindow = new AssignmentWindow(course);
                 AssignmentWindow.Show();
+                FactorBtn.Visibility = Visibility.Visible;
             }
-
         }
     }
 }

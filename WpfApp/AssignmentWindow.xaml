@@ -6,7 +6,20 @@
         xmlns:local="clr-namespace:WpfApp"
         mc:Ignorable="d"
         Title="AssignmentWindow" Height="450" Width="800">
-    <Grid>
+    <Grid Background="#4472c4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="0,48,0,0">
+            <TextBox BorderBrush="Black" BorderThickness="2" Width="70" Height="25" VerticalAlignment="Center" Margin="305,0,0,0"/>
+            <Button Name="AddOrEditFactorBtn" Content="Add/Edit Factor"  Width="100" Height="25" VerticalAlignment="Center" Margin="15,0,0,0" BorderBrush="Black" BorderThickness="2" FontWeight="DemiBold"/>
+        </StackPanel>
         
+        <StackPanel Grid.Row="1" Orientation="Vertical">
+            <ListBox Name="AssignmentListBox" Grid.Row="1" Width="250" Height="240" FontSize="16" FontWeight="DemiBold"/>
+        </StackPanel>
+
     </Grid>
 </Window>

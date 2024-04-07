@@ -13,14 +13,14 @@
             <RowDefinition Height="140*"/>
             <RowDefinition Height="180*"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Height="30">
-            <Label Name="CourseName" Content="Course Name" FontSize="18" FontWeight="DemiBold" Grid.Row="0" VerticalAlignment="Center" Height="30"/>
+        <StackPanel Grid.Row="0" Height="40">
+            <Label Name="CourseName" Content="Course Name" FontSize="18" FontWeight="DemiBold" Grid.Row="0" VerticalAlignment="Center" Height="35"/>
         </StackPanel>
         <Border Name="WinodwBorder" Background="#4472c4" Margin="0,3,0,0" Grid.RowSpan="3" Grid.Row="1"></Border>
         <StackPanel Orientation="Horizontal" Margin="0,3,0,0" Grid.Row="1">
             <TextBlock Name="LoadExcel" FontSize="20" Foreground="Black" Text="Load Excel Course:" Margin="50,0,0,0" VerticalAlignment="Center"/>
             <TextBox x:Name="ExcelFullPath" IsReadOnly="True" Background="Gray" Width="350" Margin="10,0,0,0" VerticalAlignment="Center" Height="25"/>
-            <Button Name="FileDialogBtn" Click="FileDialogBtn_Click" VerticalAlignment="Center" Width="35" Height="25" Margin="20,0,0,0" BorderBrush="Black" BorderThickness="2" IsEnabled="True" Background="#FF767373"/>
+            <Button Name="FileDialogBtn" Click="FileDialogBtn_Click" Content=". . ." VerticalContentAlignment="Center" Width="35" Height="25" Margin="20,0,0,0" BorderBrush="Black" BorderThickness="2" IsEnabled="True" Background="#FF767373"/>
         </StackPanel>
 
         <StackPanel Grid.Row="2" Orientation="Vertical" Margin="0,1,0,5">
@@ -36,7 +36,7 @@
                 </Grid.ColumnDefinitions>
                 
                 <Label Name="CourseNameAndAverage" Grid.Column="1" Content="Course Name (Final Grades Average)" FontSize="20" BorderBrush="Black" BorderThickness="2" Foreground="White" Margin="0,7.5,0,0" Padding="20,10,20,10"/>
-                <Button Name="FactorBtn" Click="FactorBtn_Click" Grid.Column="2" Width="55" Height="30" Content="Factor" FontSize="16" FontWeight="DemiBold"/>
+                <Button Name="FactorBtn" Click="FactorBtn_Click" Grid.Column="2" Width="55" Height="30" Content="Factor" FontSize="16" FontWeight="DemiBold" Visibility="Hidden" BorderBrush="Black" BorderThickness="2"/>
             </Grid>
             
         </StackPanel>

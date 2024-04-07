@@ -8,12 +8,16 @@
 
         public List<Student> Students { get; }
 
+        public List<Assignment> Tasks { get; }
+
         public Course(string courseName) { 
             CourseName = courseName;
 
             FullPath = String.Empty;
 
             Students = new List<Student>();
+
+            Tasks = new List<Assignment>();
         }
 
         public void AddStudent(Student student)
@@ -38,6 +42,10 @@
             Student? s1 = Students.Find(s => student.Id == student.Id);
 
             return s1;
+        }
+
+        public void AddAssignment(Assignment task) { 
+            Tasks.Add(task); 
         }
 
         public override string ToString()
