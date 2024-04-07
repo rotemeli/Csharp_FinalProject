@@ -35,5 +35,43 @@ namespace WpfApp
                 AssignmentListBox.Items.Add(task);
             }
         }
+
+        private void AddFactorBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var isNumber = double.TryParse(FactorValue.Text, out double factor);
+            if (!isNumber || factor < 0 || factor > 100)
+            {
+                MessageBox.Show("Invalid value!");
+            }
+            else
+            {
+                Object item = AssignmentListBox.SelectedItem;
+                if (item != null)
+                {
+                    Assignment task = (Assignment)item;
+                    foreach (Student student in course.Students)
+                    {
+                        var taskName = task.TaskName.Split("-")[0];
+                        Grade grade = student.Grades.Find(g => g.TaskName == taskName);
+                        if (grade != null)
+                        {
+                            double score = double.Parse(grade.Score) + factor;
+                            if (score >= 100)
+                            {
+                                grade.Score = "100";
+                            }
+                            else
+                            {
+                                grade.Score = score.ToString();
+                            }
+                        }
+                    }
+                    this.Close();
+                }
+                else {
+                    MessageBox.Show("Select an assignment!");
+                }
+            }
+        }
     }
 }
