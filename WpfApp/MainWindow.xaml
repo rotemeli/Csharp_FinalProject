@@ -28,7 +28,17 @@
             <ComboBox x:Name="CoursesBox" SelectionChanged="CoursesBox_SelectionChanged" HorizontalAlignment="Center" Margin="0,7.5,0,0" Width="170" Height="30" IsReadOnly="True" BorderBrush="Black" BorderThickness="2" FontSize="18">
                 <ComboBoxItem Content="Select" IsSelected="True"></ComboBoxItem>
             </ComboBox>
-            <Label Name="CourseNameAndAverage" Content="Course Name (Final Grades Average)" FontSize="20" BorderBrush="Black" BorderThickness="2" Foreground="White" HorizontalAlignment="Center" Margin="0,7.5,0,0" Padding="20,10,20,10"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Label Name="CourseNameAndAverage" Grid.Column="1" Content="Course Name (Final Grades Average)" FontSize="20" BorderBrush="Black" BorderThickness="2" Foreground="White" Margin="0,7.5,0,0" Padding="20,10,20,10"/>
+                <Button Name="FactorBtn" Click="FactorBtn_Click" Grid.Column="2" Width="55" Height="30" Content="Factor" FontSize="16" FontWeight="DemiBold"/>
+            </Grid>
+            
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="3">

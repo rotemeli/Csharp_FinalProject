@@ -29,7 +29,7 @@ namespace WpfApp
             InitJsonFiles();
         }
 
-        public Course? ConvertListToCourseObject(List<Dictionary<string, string>> deserialized, string courseName) 
+        private Course? ConvertListToCourseObject(List<Dictionary<string, string>> deserialized, string courseName) 
         {
             if(deserialized == null || deserialized.Count == 0)
             {
@@ -72,7 +72,7 @@ namespace WpfApp
             return course;
         }
 
-        public Course? ConvertJsonFileToCourseObject(string file) 
+        private Course? ConvertJsonFileToCourseObject(string file) 
         {
             string jsonContent = File.ReadAllText(file);
 
@@ -105,7 +105,7 @@ namespace WpfApp
             }
         }
 
-        public void ConvertCsvFileToJsonObject(string path, string jsonFileName)
+        private void ConvertCsvFileToJsonObject(string path, string jsonFileName)
         {
             var csv = new List<string[]>();
             var lines = File.ReadAllLines(path);
@@ -310,6 +310,16 @@ namespace WpfApp
             {
                 ClearView();
             }
+        }
+
+        private void FactorBtn_Click(object sender, RoutedEventArgs e)
+        {
+            if (CoursesBox.SelectedIndex != 0)
+            {
+                AssignmentWindow AssignmentWindow = new AssignmentWindow();
+                AssignmentWindow.Show();
+            }
+
         }
     }
 }
