@@ -12,6 +12,7 @@
 
         public List<Assignment> Tasks { get; }
 
+        // Constructor
         public Course(string courseName) { 
             CourseName = courseName;
 
@@ -24,11 +25,13 @@
             Tasks = new List<Assignment>();
         }
 
+        // Add a student to course's student list
         public void AddStudent(Student student)
         {
             Students.Add(student);
         }
 
+        // Return the final grade point average of the course
         public double getFinalGradesAverage()
         {
             double finalAvg = 0;
@@ -41,6 +44,7 @@
             return finalAvg / Students.Count;
         }
 
+        // Return a student by a given ID
         public Student? GetStudent(string id) 
         {
             Student? s1 = Students.Find(s => s.Id.ToString() == id);
@@ -48,6 +52,7 @@
             return s1;
         }
 
+        // Add a assignment to the tasks list
         public void AddAssignment(Assignment task) { 
             Tasks.Add(task); 
         }

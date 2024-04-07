@@ -33,6 +33,7 @@ namespace WpfApp
             PutTasksOnView();
         }
 
+        // Show the tasks on the window
         private void PutTasksOnView() {
             foreach(Assignment task in course.Tasks)
             {
@@ -40,6 +41,7 @@ namespace WpfApp
             }
         }
 
+        // Updates the json file when a students task's grade change
         private void UpdateAllStudentsInCourseJsonFile(string taskName)
         {
             string jsonString = File.ReadAllText(course.JsonFullPath);
@@ -60,8 +62,6 @@ namespace WpfApp
                     }
                 }
 
-
-
                 var options = new JsonSerializerOptions { WriteIndented = true };
                 jsonString = JsonSerializer.Serialize(students, options);
 
@@ -69,11 +69,13 @@ namespace WpfApp
             }
         }
 
+        // When clicked, the user gives all students an additional grade on an assignment
         private void AddFactorBtn_Click(object sender, RoutedEventArgs e)
         {
             var isNumber = double.TryParse(FactorValue.Text, out double factor);
-            if (!isNumber || factor < 0 || factor > 100)
+            if (!isNumber || factor < 1 || factor > 100)
             {
+                FactorValue.Text = String.Empty;
                 MessageBox.Show("Invalid value!");
             }
             else

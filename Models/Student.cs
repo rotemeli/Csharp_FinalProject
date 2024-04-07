@@ -18,6 +18,7 @@ namespace Models
 
         public List<Grade> Grades { get; }
 
+        // Constructor
         public Student() { 
             Name = String.Empty;
             LastName = String.Empty;
@@ -26,7 +27,11 @@ namespace Models
             Grades = new List<Grade>();
         }
 
-        public void AddGrade(Grade grade) {  Grades.Add(grade); }
+        // Add a given grade to the student's Grades list
+        public void AddGrade(Grade grade) 
+        {  
+            Grades.Add(grade);
+        }
 
         public double getFinalGrade() {
             double finalGrade = 0;

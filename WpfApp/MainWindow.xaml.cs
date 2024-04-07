@@ -1,21 +1,10 @@
 ﻿using Microsoft.Win32;
 using Models;
-using System.Diagnostics;
 using System.IO;
-using System.Net.Security;
-using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml.Schema;
 
 namespace WpfApp
 {
@@ -38,6 +27,9 @@ namespace WpfApp
             InitJsonFiles();
         }
 
+        #region ConvertFunctions
+
+        // Convert a list of dictionaries each representing a student to a course object
         private Course? ConvertListToCourseObject(List<Dictionary<string, string>> deserialized, string courseName) 
         {
             if(deserialized == null || deserialized.Count == 0)
@@ -85,6 +77,7 @@ namespace WpfApp
             return course;
         }
 
+        // Convert json file to a course object
         private Course? ConvertJsonFileToCourseObject(string file) 
         {
             string jsonContent = File.ReadAllText(file);
@@ -92,6 +85,7 @@ namespace WpfApp
             FileInfo fileInfo = new FileInfo(file);
             string ext = fileInfo.Extension;
             string courseName = fileInfo.Name.Replace(ext, "");
+            courseName = courseName.Split("-")[0];
 
             // Deserialize the JSON content back to List<Dictionary<string, string>>
             var deserializedList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(jsonContent);
@@ -106,21 +100,7 @@ namespace WpfApp
             return course;
         }
 
-        private void InitJsonFiles()
-        {
-            string currDir = Directory.GetCurrentDirectory();
-            string jsonDir = System.IO.Path.Combine(currDir, "JsonFiles");
-            string[] jsonFiles = Directory.GetFiles(jsonDir, "*.json");
-            foreach (string file in jsonFiles)
-            {
-                Course? c = ConvertJsonFileToCourseObject(file);
-                if (c != null && !CoursesBox.Items.Contains(c))
-                {
-                    CoursesBox.Items.Add(c);
-                }
-            }
-        }
-
+        // Convert csv file to a json file
         private void ConvertCsvFileToJsonObject(string path, string jsonFileName)
         {
             var csv = new List<string[]>();
@@ -147,7 +127,25 @@ namespace WpfApp
             string jsonFilePath = System.IO.Path.Combine(JsonFilesPath, $"{jsonFileName}.json");
             File.WriteAllText(jsonFilePath, userJsonText);
         }
+        #endregion
 
+        // Convert the json files in the project and add them to the list of courses
+        private void InitJsonFiles()
+        {
+            string currDir = Directory.GetCurrentDirectory();
+            string jsonDir = System.IO.Path.Combine(currDir, "JsonFiles");
+            string[] jsonFiles = Directory.GetFiles(jsonDir, "*.json");
+            foreach (string file in jsonFiles)
+            {
+                Course? c = ConvertJsonFileToCourseObject(file);
+                if (c != null && !CoursesBox.Items.Contains(c))
+                {
+                    CoursesBox.Items.Add(c);
+                }
+            }
+        }
+
+        // Show a given course on the window
         private void PutCourseOnView(Course course)
         {
             ClearView();
@@ -180,6 +178,7 @@ namespace WpfApp
             CourseName.Content = course.CourseName;
         }
 
+        // A function that lets the user open a CSV file and displays it in a window
         private void FileDialogBtn_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
@@ -207,6 +206,7 @@ namespace WpfApp
             }
         }
 
+        // Handles the event triggered when the selection of the student list in a course changes
         private void StudentsInCourse_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Object item = StudentsInCourse.SelectedItem;
@@ -252,6 +252,7 @@ namespace WpfApp
             }
         }
 
+        // Handles the click event of the Save Grades button
         private void SaveGradesBtn_Click(object sender, RoutedEventArgs e)
         {
             Object obj = StudentsInCourse.SelectedItem;
@@ -282,6 +283,7 @@ namespace WpfApp
                                     else
                                     {
                                         textBox.Text = s.Grades[index].Score;
+                                        MessageBox.Show("Invalid grade!");
                                     }
                                 }
                                 ++index;
@@ -299,10 +301,10 @@ namespace WpfApp
                     CourseNameAndAverage.Content = $"{course.CourseName} (Average: {avg})";
                     UpdateStudentInCourseJsonFile(course, s);
                 }
-
             }
         }
 
+        // Updates the json file when a student's grades change
         private void UpdateStudentInCourseJsonFile(Course course, Student student)
         {
             string jsonString = File.ReadAllText(course.JsonFullPath);
@@ -328,6 +330,7 @@ namespace WpfApp
             }
         }
 
+        // Clear the view of the WPF window
         private void ClearView() 
         {
             ExcelFullPath?.Clear();
@@ -340,7 +343,8 @@ namespace WpfApp
 
             StudentDetails?.Clear();
 
-            if (Grades != null) {
+            if (Grades != null) 
+            {
                 Grades.Items.Clear();
 
                 FinalGrade.Content = "Final Grade:";
@@ -354,6 +358,7 @@ namespace WpfApp
 
         }
 
+        // Handles the selection change event for the courses ComboBox
         private void CoursesBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Object item = CoursesBox.SelectedItem;
@@ -368,15 +373,25 @@ namespace WpfApp
             }
         }
 
+        /* When the factor button is clicked, 
+         * this method opens a new window that allows the user to give a factor to a given task
+         */
         private void FactorBtn_Click(object sender, RoutedEventArgs e)
         {
             Object item = CoursesBox.SelectedItem;
             if (CoursesBox.SelectedIndex != 0)
             {
+                StudentsInCourse.UnselectAll();
+                StudentDetails?.Clear();
+                if (Grades != null)
+                {
+                    Grades.Items.Clear();
+
+                    FinalGrade.Content = "Final Grade:";
+                }
                 Course course = (Course)item;
                 AssignmentWindow AssignmentWindow = new AssignmentWindow(course);
                 AssignmentWindow.Show();
-                FactorBtn.Visibility = Visibility.Visible;
             }
         }
 

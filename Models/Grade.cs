@@ -14,6 +14,8 @@ namespace Models
 
         public string Score { get; set; }
 
+
+        // Constructor
         public Grade(string taskName, double percentage, string score)
         {
             TaskName = taskName;
