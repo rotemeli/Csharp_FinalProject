@@ -52,7 +52,7 @@ namespace WpfApp
                     foreach (Student student in course.Students)
                     {
                         var taskName = task.TaskName.Split("-")[0];
-                        Grade grade = student.Grades.Find(g => g.TaskName == taskName);
+                        Grade? grade = student.Grades.Find(g => g.TaskName == taskName);
                         if (grade != null)
                         {
                             double score = double.Parse(grade.Score) + factor;

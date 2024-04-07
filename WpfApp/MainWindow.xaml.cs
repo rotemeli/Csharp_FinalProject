@@ -24,9 +24,16 @@ namespace WpfApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        private string JsonFilesPath;
         public MainWindow()
         {
             InitializeComponent();
+            string currDir = Directory.GetCurrentDirectory();
+            JsonFilesPath = System.IO.Path.Combine(currDir, "JsonFiles");
+            if (!Directory.Exists(JsonFilesPath))
+            {
+                Directory.CreateDirectory(JsonFilesPath);
+            }
             InitJsonFiles();
         }
 
@@ -95,17 +102,15 @@ namespace WpfApp
 
         private void InitJsonFiles()
         {
-            string[] jsonFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.json");
+            string currDir = Directory.GetCurrentDirectory();
+            string jsonDir = System.IO.Path.Combine(currDir, "JsonFiles");
+            string[] jsonFiles = Directory.GetFiles(jsonDir, "*.json");
             foreach (string file in jsonFiles)
             {
-                FileInfo fileInfo = new FileInfo(file);
-                if (fileInfo.Name.Any(char.IsDigit) && File.Exists(file)) 
+                Course? c = ConvertJsonFileToCourseObject(file);
+                if (c != null && !CoursesBox.Items.Contains(c))
                 {
-                    Course? c = ConvertJsonFileToCourseObject(file);
-                    if (c != null && !CoursesBox.Items.Contains(c))
-                    {
-                        CoursesBox.Items.Add(c);
-                    }
+                    CoursesBox.Items.Add(c);
                 }
             }
         }
@@ -133,7 +138,8 @@ namespace WpfApp
 
             JsonSerializerOptions options = new JsonSerializerOptions { WriteIndented = true };
             string userJsonText = JsonSerializer.Serialize<List<Dictionary<string, string>>>(listObjResult, options);
-            File.WriteAllText($"{jsonFileName}.json", userJsonText);
+            string jsonFilePath = System.IO.Path.Combine(JsonFilesPath, $"{jsonFileName}.json");
+            File.WriteAllText(jsonFilePath, userJsonText);
         }
 
         private void PutCourseOnView(Course course, string fullPath)
@@ -184,7 +190,9 @@ namespace WpfApp
 
                 string jsonFileName = fileNameWithoutExt + "-" + DateTime.Now.ToString("dd-MM-yyyy");
                 ConvertCsvFileToJsonObject(file, jsonFileName);
-                Course? c = ConvertJsonFileToCourseObject($"{jsonFileName}.json");
+
+                string jsonFilePath = System.IO.Path.Combine(JsonFilesPath, $"{jsonFileName}.json");
+                Course? c = ConvertJsonFileToCourseObject(jsonFilePath);
                 if(c != null )
                 {
                     PutCourseOnView(c, file);
