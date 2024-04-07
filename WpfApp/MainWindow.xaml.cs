@@ -25,6 +25,7 @@ namespace WpfApp
     public partial class MainWindow : Window
     {
         private string JsonFilesPath;
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -97,7 +98,12 @@ namespace WpfApp
             if(deserializedList == null) {
                 return null;
             }
-            return ConvertListToCourseObject(deserializedList, courseName);
+            Course? course = ConvertListToCourseObject(deserializedList, courseName);
+            if(course != null)
+            {
+                course.JsonFullPath = file;
+            }
+            return course;
         }
 
         private void InitJsonFiles()
@@ -142,13 +148,12 @@ namespace WpfApp
             File.WriteAllText(jsonFilePath, userJsonText);
         }
 
-        private void PutCourseOnView(Course course, string fullPath)
+        private void PutCourseOnView(Course course)
         {
             ClearView();
-            ExcelFullPath.Text = fullPath;
+            ExcelFullPath.Text = course.ExcelFullPath;
             string avg = course.getFinalGradesAverage().ToString("F4");
             CourseNameAndAverage.Content = $"{course.CourseName} (Average: {avg})";
-            course.FullPath = fullPath;
 
             if(!CoursesBox.Items.Contains(course)) {
                 CoursesBox.Items.Add(course);
@@ -193,9 +198,11 @@ namespace WpfApp
 
                 string jsonFilePath = System.IO.Path.Combine(JsonFilesPath, $"{jsonFileName}.json");
                 Course? c = ConvertJsonFileToCourseObject(jsonFilePath);
+                
                 if(c != null )
                 {
-                    PutCourseOnView(c, file);
+                    c.ExcelFullPath = fileInfo.FullName;
+                    PutCourseOnView(c);
                 }
             }
         }
@@ -242,7 +249,6 @@ namespace WpfApp
                     Grades.Items.Add(sp);
                 }
                 FinalGrade.Content = $"Final Grade:\t{s.getFinalGrade().ToString("F2")}";
-
             }
         }
 
@@ -291,8 +297,34 @@ namespace WpfApp
                     Course course = (Course)courseObj;
                     string avg = course.getFinalGradesAverage().ToString("F4");
                     CourseNameAndAverage.Content = $"{course.CourseName} (Average: {avg})";
+                    UpdateStudentInCourseJsonFile(course, s);
                 }
-                
+
+            }
+        }
+
+        private void UpdateStudentInCourseJsonFile(Course course, Student student)
+        {
+            string jsonString = File.ReadAllText(course.JsonFullPath);
+            var students = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(jsonString);
+
+            if (students != null)
+            {
+                var dict = students.Find(s => s["ZehutNumber"] == student.Id.ToString());
+
+                foreach (var task in course.Tasks)
+                {
+                    Grade? grade = student.Grades.Find(g => g.TaskName == task.TaskName.Split("-")[0]);
+                    if (grade != null && dict != null) {
+                        dict[task.TaskName] = grade.Score;
+                    }
+                    
+                }
+
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                jsonString = JsonSerializer.Serialize(students, options);
+
+                File.WriteAllText(course.JsonFullPath, jsonString);
             }
         }
 
@@ -328,7 +360,7 @@ namespace WpfApp
             if (CoursesBox.SelectedIndex != 0)
             {
                 Course course = (Course)item;
-                PutCourseOnView(course, course.FullPath);
+                PutCourseOnView(course);
             }
             else
             {
@@ -347,5 +379,6 @@ namespace WpfApp
                 FactorBtn.Visibility = Visibility.Visible;
             }
         }
+
     }
 }

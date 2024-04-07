@@ -4,7 +4,9 @@
     {
         public string CourseName { get; }
 
-        public string FullPath { get; set; }
+        public string ExcelFullPath { get; set; }
+
+        public string JsonFullPath { get; set; }
 
         public List<Student> Students { get; }
 
@@ -13,7 +15,9 @@
         public Course(string courseName) { 
             CourseName = courseName;
 
-            FullPath = String.Empty;
+            ExcelFullPath = String.Empty;
+
+            JsonFullPath = String.Empty;
 
             Students = new List<Student>();
 
@@ -37,9 +41,9 @@
             return finalAvg / Students.Count;
         }
 
-        public Student? GetStudent(Student student) 
+        public Student? GetStudent(string id) 
         {
-            Student? s1 = Students.Find(s => student.Id == student.Id);
+            Student? s1 = Students.Find(s => s.Id.ToString() == id);
 
             return s1;
         }

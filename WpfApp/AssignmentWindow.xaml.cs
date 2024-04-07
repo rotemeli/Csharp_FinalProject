@@ -1,8 +1,11 @@
 ﻿using Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace WpfApp
 {
@@ -33,6 +37,35 @@ namespace WpfApp
             foreach(Assignment task in course.Tasks)
             {
                 AssignmentListBox.Items.Add(task);
+            }
+        }
+
+        private void UpdateAllStudentsInCourseJsonFile(string taskName)
+        {
+            string jsonString = File.ReadAllText(course.JsonFullPath);
+            var students = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(jsonString);
+
+            if (students != null)
+            {
+                foreach(var dict in students)
+                {
+                    Student? s1 = course.GetStudent(dict["ZehutNumber"]);
+                    if (s1 != null)
+                    {
+                        Grade? grade = s1.Grades.Find(g => g.TaskName == taskName.Split("-")[0]);
+                        if (grade != null)
+                        {
+                            dict[taskName] = grade.Score;
+                        }
+                    }
+                }
+
+
+
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                jsonString = JsonSerializer.Serialize(students, options);
+
+                File.WriteAllText(course.JsonFullPath, jsonString);
             }
         }
 
@@ -66,6 +99,7 @@ namespace WpfApp
                             }
                         }
                     }
+                    UpdateAllStudentsInCourseJsonFile(task.TaskName);
                     this.Close();
                 }
                 else {
