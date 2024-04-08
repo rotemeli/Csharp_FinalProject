@@ -27,6 +27,22 @@ namespace WpfApp
             InitJsonFiles();
         }
 
+        // Convert the json files in the project and add them to the list of courses
+        private void InitJsonFiles()
+        {
+            string currDir = Directory.GetCurrentDirectory();
+            string jsonDir = System.IO.Path.Combine(currDir, "JsonFiles");
+            string[] jsonFiles = Directory.GetFiles(jsonDir, "*.json");
+            foreach (string file in jsonFiles)
+            {
+                Course? c = ConvertJsonFileToCourseObject(file);
+                if (c != null && !CoursesBox.Items.Contains(c))
+                {
+                    CoursesBox.Items.Add(c);
+                }
+            }
+        }
+
         #region ConvertFunctions
 
         // Convert a list of dictionaries each representing a student to a course object
@@ -129,20 +145,34 @@ namespace WpfApp
         }
         #endregion
 
-        // Convert the json files in the project and add them to the list of courses
-        private void InitJsonFiles()
+        #region View Updates
+        // Clear the view of the WPF window
+        private void ClearView()
         {
-            string currDir = Directory.GetCurrentDirectory();
-            string jsonDir = System.IO.Path.Combine(currDir, "JsonFiles");
-            string[] jsonFiles = Directory.GetFiles(jsonDir, "*.json");
-            foreach (string file in jsonFiles)
+            ExcelFullPath?.Clear();
+
+            if (CourseNameAndAverage != null)
             {
-                Course? c = ConvertJsonFileToCourseObject(file);
-                if (c != null && !CoursesBox.Items.Contains(c))
-                {
-                    CoursesBox.Items.Add(c);
-                }
+                CourseNameAndAverage.Content = "Course Name (Final Grades Average)";
             }
+
+            StudentsInCourse?.Items.Clear();
+
+            StudentDetails?.Clear();
+
+            if (Grades != null)
+            {
+                Grades.Items.Clear();
+
+                FinalGrade.Content = "Final Grade:";
+            }
+            if (FactorBtn != null)
+            {
+                FactorBtn.Visibility = Visibility.Hidden;
+            }
+
+            CourseName.Content = "Course Name";
+
         }
 
         // Show a given course on the window
@@ -177,7 +207,9 @@ namespace WpfApp
             }
             CourseName.Content = course.CourseName;
         }
+        #endregion
 
+        #region Event Listeners
         // A function that lets the user open a CSV file and displays it in a window
         private void FileDialogBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -312,7 +344,7 @@ namespace WpfApp
 
             if (students != null)
             {
-                var dict = students.Find(s => s["ZehutNumber"] == student.Id.ToString());
+                var dict = students.Find(s => s.ContainsValue(student.Id.ToString()));
 
                 foreach (var task in course.Tasks)
                 {
@@ -328,34 +360,6 @@ namespace WpfApp
 
                 File.WriteAllText(course.JsonFullPath, jsonString);
             }
-        }
-
-        // Clear the view of the WPF window
-        private void ClearView() 
-        {
-            ExcelFullPath?.Clear();
-
-            if (CourseNameAndAverage != null) {
-                CourseNameAndAverage.Content = "Course Name (Final Grades Average)";
-            }
-            
-            StudentsInCourse?.Items.Clear();
-
-            StudentDetails?.Clear();
-
-            if (Grades != null) 
-            {
-                Grades.Items.Clear();
-
-                FinalGrade.Content = "Final Grade:";
-            }
-            if(FactorBtn != null)
-            {
-                FactorBtn.Visibility = Visibility.Hidden;
-            }
-            
-            CourseName.Content = "Course Name";
-
         }
 
         // Handles the selection change event for the courses ComboBox
@@ -390,10 +394,10 @@ namespace WpfApp
                     FinalGrade.Content = "Final Grade:";
                 }
                 Course course = (Course)item;
-                AssignmentWindow AssignmentWindow = new AssignmentWindow(course);
+                AssignmentWindow AssignmentWindow = new AssignmentWindow(course, CourseNameAndAverage);
                 AssignmentWindow.Show();
             }
         }
-
+        #endregion
     }
 }

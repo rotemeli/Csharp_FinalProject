@@ -10,6 +10,7 @@ namespace Models
     {
         public string TaskName {  get; set; }
 
+        // Constructor
         public Assignment(string taskName)
         {
             TaskName = taskName;

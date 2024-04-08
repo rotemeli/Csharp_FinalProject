@@ -59,7 +59,7 @@
                         <ListBox Name="Grades" Height="100" Background="#4472c4" BorderBrush="{x:Null}"/>
                         <StackPanel Height="30" Orientation="Horizontal" Background="#4472c4">
                             <Label Name="FinalGrade" Width="200" Content="Final Grade:" Foreground="White" />
-                            <Button Name="SaveGradesBtn" Click="SaveGradesBtn_Click" Width="35" Height="20" Margin="10,0,0,5" BorderBrush="Black" BorderThickness="2" Background="#FF767373" VerticalAlignment="Center"/>
+                            <Button Name="SaveGradesBtn" Click="SaveGradesBtn_Click" Content="Save" Width="35" Height="20" Margin="10,0,0,5" BorderBrush="Black" BorderThickness="2" Background="#FF767373" VerticalAlignment="Center"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>

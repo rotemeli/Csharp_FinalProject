@@ -25,17 +25,19 @@ namespace WpfApp
     public partial class AssignmentWindow : Window
     {
 
-        private Course course;
-        public AssignmentWindow(Course course)
+        private Course Course;
+        private Label CourseNameAndAverage;
+        public AssignmentWindow(Course course, Label courseNameAndAverage)
         {
             InitializeComponent();
-            this.course = course;
+            this.Course = course;
+            this.CourseNameAndAverage = courseNameAndAverage;
             PutTasksOnView();
         }
 
         // Show the tasks on the window
         private void PutTasksOnView() {
-            foreach(Assignment task in course.Tasks)
+            foreach(Assignment task in Course.Tasks)
             {
                 AssignmentListBox.Items.Add(task);
             }
@@ -44,14 +46,14 @@ namespace WpfApp
         // Updates the json file when a students task's grade change
         private void UpdateAllStudentsInCourseJsonFile(string taskName)
         {
-            string jsonString = File.ReadAllText(course.JsonFullPath);
+            string jsonString = File.ReadAllText(Course.JsonFullPath);
             var students = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(jsonString);
 
             if (students != null)
             {
                 foreach(var dict in students)
                 {
-                    Student? s1 = course.GetStudent(dict["ZehutNumber"]);
+                    Student? s1 = Course.GetStudent(dict.ElementAt(2).Value);
                     if (s1 != null)
                     {
                         Grade? grade = s1.Grades.Find(g => g.TaskName == taskName.Split("-")[0]);
@@ -65,7 +67,7 @@ namespace WpfApp
                 var options = new JsonSerializerOptions { WriteIndented = true };
                 jsonString = JsonSerializer.Serialize(students, options);
 
-                File.WriteAllText(course.JsonFullPath, jsonString);
+                File.WriteAllText(Course.JsonFullPath, jsonString);
             }
         }
 
@@ -84,7 +86,7 @@ namespace WpfApp
                 if (item != null)
                 {
                     Assignment task = (Assignment)item;
-                    foreach (Student student in course.Students)
+                    foreach (Student student in Course.Students)
                     {
                         var taskName = task.TaskName.Split("-")[0];
                         Grade? grade = student.Grades.Find(g => g.TaskName == taskName);
@@ -102,6 +104,8 @@ namespace WpfApp
                         }
                     }
                     UpdateAllStudentsInCourseJsonFile(task.TaskName);
+                    string avg = Course.getFinalGradesAverage().ToString("F4");
+                    CourseNameAndAverage.Content = $"{Course.CourseName} (Average: {avg})";
                     this.Close();
                 }
                 else {
