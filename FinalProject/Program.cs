@@ -9,6 +9,4 @@ internal class Program
     {
         // Empty
     }
-
-
 }

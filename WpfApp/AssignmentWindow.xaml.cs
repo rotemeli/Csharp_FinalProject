@@ -30,6 +30,7 @@ namespace WpfApp
         public AssignmentWindow(Course course, Label courseNameAndAverage)
         {
             InitializeComponent();
+
             this.Course = course;
             this.CourseNameAndAverage = courseNameAndAverage;
             PutTasksOnView();
@@ -66,6 +67,12 @@ namespace WpfApp
 
                 var options = new JsonSerializerOptions { WriteIndented = true };
                 jsonString = JsonSerializer.Serialize(students, options);
+
+                // Update the json file to the current date
+                string newFileName = Course.JsonFullPath.Split("_")[0] + "_" + 
+                    DateTime.Now.ToString("dd-MM-yyyy") + ".json";
+                File.Move(Course.JsonFullPath, newFileName);
+                Course.JsonFullPath = newFileName;
 
                 File.WriteAllText(Course.JsonFullPath, jsonString);
             }

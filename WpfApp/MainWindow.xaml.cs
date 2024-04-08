@@ -18,12 +18,16 @@ namespace WpfApp
         public MainWindow()
         {
             InitializeComponent();
+
+            // Creates a directory that will contain all the JSON files
             string currDir = Directory.GetCurrentDirectory();
             JsonFilesPath = System.IO.Path.Combine(currDir, "JsonFiles");
             if (!Directory.Exists(JsonFilesPath))
             {
                 Directory.CreateDirectory(JsonFilesPath);
             }
+
+            // Reads the previously generated JSON files
             InitJsonFiles();
         }
 
@@ -101,7 +105,7 @@ namespace WpfApp
             FileInfo fileInfo = new FileInfo(file);
             string ext = fileInfo.Extension;
             string courseName = fileInfo.Name.Replace(ext, "");
-            courseName = courseName.Split("-")[0];
+            courseName = courseName.Split("_")[0];
 
             // Deserialize the JSON content back to List<Dictionary<string, string>>
             var deserializedList = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(jsonContent);
@@ -172,13 +176,15 @@ namespace WpfApp
             }
 
             CourseName.Content = "Course Name";
-
         }
 
         // Show a given course on the window
         private void PutCourseOnView(Course course)
         {
+            if(course == null) { return; }
+
             ClearView();
+
             ExcelFullPath.Text = course.ExcelFullPath;
             string avg = course.getFinalGradesAverage().ToString("F4");
             CourseNameAndAverage.Content = $"{course.CourseName} (Average: {avg})";
@@ -209,6 +215,72 @@ namespace WpfApp
         }
         #endregion
 
+        #region Help functions
+
+        private static void IfFileExistThenDelete(string fileName)
+        {
+            // Check if the json file already exists
+            string currDir = Directory.GetCurrentDirectory();
+            string jsonDir = System.IO.Path.Combine(currDir, "JsonFiles");
+
+            string[] jsonFiles = Directory.GetFiles(jsonDir, "*.json");
+            foreach (var jsonFile in jsonFiles)
+            {
+                FileInfo fi = new FileInfo(jsonFile);
+                string fName = fi.Name.Split("_")[0];
+                if (fName.Equals(fileName))
+                {
+                    File.Delete(jsonFile);
+                }
+            }
+        }
+
+        private Course? GetCourseFromComboBox(string courseName)
+        {
+            foreach(var c in CoursesBox.Items)
+            {
+                if(c is Course course && course.CourseName == courseName)
+                {
+                    return course;
+                }
+            }
+            return null;
+        }
+
+        // Updates the json file when a student's grades change
+        private void UpdateStudentInCourseJsonFile(Course course, Student student)
+        {
+            string jsonString = File.ReadAllText(course.JsonFullPath);
+            var students = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(jsonString);
+
+            if (students != null)
+            {
+                var dict = students.Find(s => s.ContainsValue(student.Id.ToString()));
+
+                foreach (var task in course.Tasks)
+                {
+                    Grade? grade = student.Grades.Find(g => g.TaskName == task.TaskName.Split("-")[0]);
+                    if (grade != null && dict != null)
+                    {
+                        dict[task.TaskName] = grade.Score;
+                    }
+
+                }
+
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                jsonString = JsonSerializer.Serialize(students, options);
+
+                // Update the json file to the current date
+                string newFileName = course.JsonFullPath.Split("_")[0] + "_" +
+                    DateTime.Now.ToString("dd-MM-yyyy") + ".json";
+                File.Move(course.JsonFullPath, newFileName);
+                course.JsonFullPath = newFileName;
+
+                File.WriteAllText(course.JsonFullPath, jsonString);
+            }
+        }
+        #endregion
+
         #region Event Listeners
         // A function that lets the user open a CSV file and displays it in a window
         private void FileDialogBtn_Click(object sender, RoutedEventArgs e)
@@ -222,13 +294,28 @@ namespace WpfApp
                 string ext = fileInfo.Extension;
 
                 string fileNameWithoutExt = fileInfo.Name.Replace(ext, "");
-                
 
-                string jsonFileName = fileNameWithoutExt + "-" + DateTime.Now.ToString("dd-MM-yyyy");
+                string jsonFileName = fileNameWithoutExt + "_" + DateTime.Now.ToString("dd-MM-yyyy");
+
+                IfFileExistThenDelete(fileNameWithoutExt);
+
                 ConvertCsvFileToJsonObject(file, jsonFileName);
 
-                string jsonFilePath = System.IO.Path.Combine(JsonFilesPath, $"{jsonFileName}.json");
+                string jsonFilePath = Path.Combine(JsonFilesPath, $"{jsonFileName}.json");
+
                 Course? c = ConvertJsonFileToCourseObject(jsonFilePath);
+
+                // Check if the ComboBox already contains the course
+                Course? courseToRemove = null;
+                if( c != null )
+                {
+                    courseToRemove = GetCourseFromComboBox(c.CourseName);
+
+                    if (courseToRemove != null)
+                    {
+                        CoursesBox.Items.Remove(courseToRemove);
+                    }
+                }
                 
                 if(c != null )
                 {
@@ -333,32 +420,6 @@ namespace WpfApp
                     CourseNameAndAverage.Content = $"{course.CourseName} (Average: {avg})";
                     UpdateStudentInCourseJsonFile(course, s);
                 }
-            }
-        }
-
-        // Updates the json file when a student's grades change
-        private void UpdateStudentInCourseJsonFile(Course course, Student student)
-        {
-            string jsonString = File.ReadAllText(course.JsonFullPath);
-            var students = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(jsonString);
-
-            if (students != null)
-            {
-                var dict = students.Find(s => s.ContainsValue(student.Id.ToString()));
-
-                foreach (var task in course.Tasks)
-                {
-                    Grade? grade = student.Grades.Find(g => g.TaskName == task.TaskName.Split("-")[0]);
-                    if (grade != null && dict != null) {
-                        dict[task.TaskName] = grade.Score;
-                    }
-                    
-                }
-
-                var options = new JsonSerializerOptions { WriteIndented = true };
-                jsonString = JsonSerializer.Serialize(students, options);
-
-                File.WriteAllText(course.JsonFullPath, jsonString);
             }
         }
 
